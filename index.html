@@ -19,17 +19,25 @@
       font-size: 2rem;
       margin-top: 20px;
       color: #333;
+      text-align: center;
     }
     #hiddenInput {
       opacity: 0;
       position: absolute;
       pointer-events: none;
     }
+    #statusImage {
+      margin-top: 20px;
+      width: 150px;
+      height: 150px;
+      display: none;
+    }
   </style>
 </head>
 <body>
   <h1>Zugangssystem</h1>
-  <div id="message">Bitte Ticket scannen oder Nummer eingeben...</div>
+  <div id="message">Bitte Ticket scannen...</div>
+  <img id="statusImage" src="" alt="Status">
 
   <input type="text" id="hiddenInput" autocomplete="off" />
 
@@ -37,8 +45,8 @@
     const input = document.getElementById('hiddenInput');
     const message = document.getElementById('message');
     const body = document.body;
+    const statusImage = document.getElementById('statusImage');
 
-    // Liste gültiger Ticketnummern
     const validTickets = [
       "123456",
       "654321",
@@ -47,6 +55,7 @@
     ];
 
     let buffer = '';
+    let scanTimeout = null;
 
     function focusInput() {
       input.focus();
@@ -54,37 +63,41 @@
     setInterval(focusInput, 500);
 
     input.addEventListener('input', (e) => {
-      const value = e.target.value.trim();
-      if (value.endsWith('\n') || value.endsWith('\r')) {
-        processCode(buffer);
+      buffer += e.data ?? '';
+      clearTimeout(scanTimeout);
+      
+      // Automatisch nach kurzer Zeit prüfen (z.B. 300ms ohne neue Eingabe)
+      scanTimeout = setTimeout(() => {
+        processCode(buffer.trim());
         buffer = '';
         input.value = '';
-      } else {
-        buffer = value;
-      }
-    });
-
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        processCode(buffer);
-        buffer = '';
-        input.value = '';
-      }
+      }, 300);
     });
 
     function processCode(code) {
       if (code.length > 0) {
         console.log('Gescannter Code:', code);
         message.textContent = "Wird geprüft...";
-        body.style.backgroundColor = "#f0f0f0"; // Reset Hintergrund
+        body.style.backgroundColor = "#f0f0f0";
+        statusImage.style.display = "none";
+
         setTimeout(() => {
           if (validTickets.includes(code)) {
             message.textContent = "✅ Bitte eintreten!";
             body.style.backgroundColor = "#a8e6a1"; // Grün
+            statusImage.src = "https://media.giphy.com/media/111ebonMs90YLu/giphy.gif"; // Checkmark GIF
           } else {
             message.textContent = "❌ Anderes Ticket scannen oder erneut probieren.";
             body.style.backgroundColor = "#f5a5a5"; // Rot
+            statusImage.src = "https://media.giphy.com/media/9J7tdYltWyXIY/giphy.gif"; // Fehler/Decline GIF
           }
+          statusImage.style.display = "block";
+
+          // Nach 4 Sekunden automatisch Seite neu laden
+          setTimeout(() => {
+            location.reload();
+          }, 4000);
+
         }, 1000); // 1 Sekunde "wird geprüft..."
       }
     }
