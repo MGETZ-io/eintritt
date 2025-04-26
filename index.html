@@ -26,7 +26,7 @@
       position: absolute;
       pointer-events: none;
     }
-    #statusImage, .checkmark, .declineImage {
+    .checkmarkWrapper, .declineImage {
       margin-top: 20px;
       width: 150px;
       height: 150px;
@@ -34,6 +34,10 @@
     }
 
     /* Checkmark Animation */
+    .checkmarkWrapper svg {
+      width: 100px;
+      height: 100px;
+    }
     .checkmark {
       width: 100px;
       height: 100px;
@@ -42,7 +46,6 @@
       stroke-width: 2;
       stroke: #4caf50;
       stroke-miterlimit: 10;
-      margin: 20px auto;
       box-shadow: inset 0px 0px 0px #4caf50;
       animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
     }
@@ -82,14 +85,16 @@
   <h1>Zugangssystem</h1>
   <div id="message">Bitte Ticket scannen...</div>
 
-  <!-- Haken-Animation -->
-  <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
-    <path class="checkmark__check" fill="none" d="M14 27l7 7 16-16"/>
-  </svg>
+  <!-- Wrapper für die Checkmark-Animation -->
+  <div class="checkmarkWrapper" id="checkmarkWrapper">
+    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+      <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+      <path class="checkmark__check" fill="none" d="M14 27l7 7 16-16"/>
+    </svg>
+  </div>
 
   <!-- Decline GIF -->
-  <img id="statusImage" class="declineImage" src="https://media.giphy.com/media/9J7tdYltWyXIY/giphy.gif" alt="Decline">
+  <img id="declineImage" class="declineImage" src="https://media.giphy.com/media/9J7tdYltWyXIY/giphy.gif" alt="Decline">
 
   <input type="text" id="hiddenInput" autocomplete="off" />
 
@@ -97,8 +102,8 @@
     const input = document.getElementById('hiddenInput');
     const message = document.getElementById('message');
     const body = document.body;
-    const checkmark = document.querySelector('.checkmark');
-    const declineImage = document.getElementById('statusImage');
+    const checkmarkWrapper = document.getElementById('checkmarkWrapper');
+    const declineImage = document.getElementById('declineImage');
 
     const validTickets = [
       "123456",
@@ -134,14 +139,14 @@
         console.log('Gescannter Code:', code);
         message.textContent = "Wird geprüft...";
         body.style.backgroundColor = "#f0f0f0";
-        checkmark.style.display = "none";
+        checkmarkWrapper.style.display = "none";
         declineImage.style.display = "none";
 
         setTimeout(() => {
           if (validTickets.includes(code)) {
             message.textContent = "✅ Bitte eintreten!";
             body.style.backgroundColor = "#a8e6a1"; // Grün
-            checkmark.style.display = "block";
+            checkmarkWrapper.style.display = "block"; // Checkmark erst jetzt anzeigen
           } else {
             message.textContent = "❌ Anderes Ticket scannen oder erneut probieren.";
             body.style.backgroundColor = "#f5a5a5"; // Rot
