@@ -13,7 +13,9 @@
       height: 100vh;
       background: #f0f0f0;
       font-family: Arial, sans-serif;
+      overflow: hidden;
       transition: background-color 0.5s;
+      position: relative;
     }
     #message {
       font-size: 2rem;
@@ -79,9 +81,44 @@
     @keyframes fill {
       100% { box-shadow: inset 0px 0px 0px 30px #4caf50; }
     }
+
+    /* Schriftzug */
+    .festival {
+      position: absolute;
+      top: 20px;
+      right: -300px; /* Startposition außerhalb des Bildschirms */
+      font-family: 'Arial Black', sans-serif;
+      font-size: 2.5rem;
+      line-height: 1;
+      text-align: right;
+      color: #333;
+      white-space: nowrap;
+      transform: translateX(0);
+      animation: slideIn 1.2s forwards ease-out;
+    }
+    @keyframes slideIn {
+      0% { transform: translateX(300px); }
+      100% { transform: translateX(0); }
+    }
+    .festival .the {
+      font-size: 2rem;
+      display: block;
+      margin-right: 10px;
+      letter-spacing: -3px;
+    }
+    .festival .festival-word {
+      font-size: 2.8rem;
+      display: block;
+      letter-spacing: -5px; /* T und F berühren sich */
+    }
   </style>
 </head>
 <body>
+  <div class="festival">
+    <span class="the">The</span>
+    <span class="festival-word">Festival</span>
+  </div>
+
   <h1>Zugangssystem</h1>
   <div id="message">Bitte Ticket scannen...</div>
 
@@ -146,7 +183,7 @@
           if (validTickets.includes(code)) {
             message.textContent = "✅ Bitte eintreten!";
             body.style.backgroundColor = "#a8e6a1"; // Grün
-            checkmarkWrapper.style.display = "block"; // Checkmark erst jetzt anzeigen
+            checkmarkWrapper.style.display = "block"; 
           } else {
             message.textContent = "❌ Anderes Ticket scannen oder erneut probieren.";
             body.style.backgroundColor = "#f5a5a5"; // Rot
@@ -160,6 +197,14 @@
         }, 1000);
       }
     }
+
+    // Festival-Schriftzug neu animieren beim Reload
+    window.onload = () => {
+      const festival = document.querySelector('.festival');
+      festival.style.animation = 'none';
+      void festival.offsetWidth; // Reflow Trick
+      festival.style.animation = null;
+    };
 
     focusInput();
   </script>
