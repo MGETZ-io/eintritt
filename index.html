@@ -64,14 +64,17 @@
 
     input.addEventListener('input', (e) => {
       buffer += e.data ?? '';
+
       clearTimeout(scanTimeout);
-      
-      // Automatisch nach kurzer Zeit prüfen (z.B. 300ms ohne neue Eingabe)
-      scanTimeout = setTimeout(() => {
-        processCode(buffer.trim());
-        buffer = '';
-        input.value = '';
-      }, 300);
+
+      if (buffer.trim().length >= 6) {
+        // Nur wenn mindestens 6 Zeichen da sind
+        scanTimeout = setTimeout(() => {
+          processCode(buffer.trim());
+          buffer = '';
+          input.value = '';
+        }, 300); // Kurze Wartezeit
+      }
     });
 
     function processCode(code) {
@@ -93,7 +96,7 @@
           }
           statusImage.style.display = "block";
 
-          // Nach 4 Sekunden automatisch Seite neu laden
+          // Nach 4 Sekunden Seite neu laden
           setTimeout(() => {
             location.reload();
           }, 4000);
