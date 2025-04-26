@@ -26,18 +26,70 @@
       position: absolute;
       pointer-events: none;
     }
-    #statusImage {
+    #statusImage, .checkmark, .declineImage {
       margin-top: 20px;
       width: 150px;
       height: 150px;
       display: none;
+    }
+
+    /* Checkmark Animation */
+    .checkmark {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: block;
+      stroke-width: 2;
+      stroke: #4caf50;
+      stroke-miterlimit: 10;
+      margin: 20px auto;
+      box-shadow: inset 0px 0px 0px #4caf50;
+      animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+    }
+
+    .checkmark__circle {
+      stroke-dasharray: 166;
+      stroke-dashoffset: 166;
+      stroke-width: 2;
+      stroke-miterlimit: 10;
+      stroke: #4caf50;
+      fill: none;
+      animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+
+    .checkmark__check {
+      transform-origin: 50% 50%;
+      stroke-dasharray: 48;
+      stroke-dashoffset: 48;
+      animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+    }
+
+    @keyframes stroke {
+      100% { stroke-dashoffset: 0; }
+    }
+
+    @keyframes scale {
+      0%, 100% { transform: none; }
+      50% { transform: scale3d(1.1, 1.1, 1); }
+    }
+
+    @keyframes fill {
+      100% { box-shadow: inset 0px 0px 0px 30px #4caf50; }
     }
   </style>
 </head>
 <body>
   <h1>Zugangssystem</h1>
   <div id="message">Bitte Ticket scannen...</div>
-  <img id="statusImage" src="" alt="Status">
+
+  <!-- Haken-Animation -->
+  <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+    <path class="checkmark__check" fill="none" d="M14 27l7 7 16-16"/>
+  </svg>
+
+  <!-- Decline GIF -->
+  <img id="statusImage" class="declineImage" src="https://media.giphy.com/media/9J7tdYltWyXIY/giphy.gif" alt="Decline">
 
   <input type="text" id="hiddenInput" autocomplete="off" />
 
@@ -45,7 +97,8 @@
     const input = document.getElementById('hiddenInput');
     const message = document.getElementById('message');
     const body = document.body;
-    const statusImage = document.getElementById('statusImage');
+    const checkmark = document.querySelector('.checkmark');
+    const declineImage = document.getElementById('statusImage');
 
     const validTickets = [
       "123456",
@@ -68,12 +121,11 @@
       clearTimeout(scanTimeout);
 
       if (buffer.trim().length >= 6) {
-        // Nur wenn mindestens 6 Zeichen da sind
         scanTimeout = setTimeout(() => {
           processCode(buffer.trim());
           buffer = '';
           input.value = '';
-        }, 300); // Kurze Wartezeit
+        }, 300);
       }
     });
 
@@ -82,26 +134,25 @@
         console.log('Gescannter Code:', code);
         message.textContent = "Wird geprüft...";
         body.style.backgroundColor = "#f0f0f0";
-        statusImage.style.display = "none";
+        checkmark.style.display = "none";
+        declineImage.style.display = "none";
 
         setTimeout(() => {
           if (validTickets.includes(code)) {
             message.textContent = "✅ Bitte eintreten!";
             body.style.backgroundColor = "#a8e6a1"; // Grün
-            statusImage.src = "https://media.giphy.com/media/111ebonMs90YLu/giphy.gif"; // Checkmark GIF
+            checkmark.style.display = "block";
           } else {
             message.textContent = "❌ Anderes Ticket scannen oder erneut probieren.";
             body.style.backgroundColor = "#f5a5a5"; // Rot
-            statusImage.src = "https://media.giphy.com/media/9J7tdYltWyXIY/giphy.gif"; // Fehler/Decline GIF
+            declineImage.style.display = "block";
           }
-          statusImage.style.display = "block";
 
-          // Nach 4 Sekunden Seite neu laden
           setTimeout(() => {
             location.reload();
           }, 4000);
 
-        }, 1000); // 1 Sekunde "wird geprüft..."
+        }, 1000);
       }
     }
 
